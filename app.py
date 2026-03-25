@@ -9,7 +9,7 @@ import os
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="TalkToData · Olist BI",
+    page_title="Talk2Data · Olist BI",
     page_icon="📊",
     layout="wide",
 )
