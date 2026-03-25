@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-DB_PATH = "olist.db"   # path to your SQLite file
+DB_PATH = "data/olist.sqlite"
 
 SCHEMA_DESCRIPTION = """
 You have access to an SQLite database with the following tables:
