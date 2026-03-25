@@ -273,7 +273,12 @@ with tab1:
         """
         with st.spinner("Generating insights..."):
             insights = get_insights(summary)
-        st.info(insights)
+        # Strip any markdown bold/italic and escape dollar signs to prevent LaTeX rendering
+        import re as _re
+        insights_clean = _re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', insights)  # remove **bold** and *italic*
+        insights_clean = insights_clean.replace('$', r'\$')  # escape $ to prevent LaTeX
+        st.info(insights_clean)
+ 
 
     st.divider()
 
