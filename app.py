@@ -343,7 +343,7 @@ with tab2:
         st.caption("Ask any business question in plain English. Examples:")
     with clear_col:
         st.write("")  # spacer to align button vertically
-        if st.button("🗑️ Clear", use_container_width=True, key="clear_chat"):
+        if st.button("🗑️ Clear Queries", use_container_width=True, key="clear_chat"):
             st.session_state.chat_history = []
             st.rerun()
  
