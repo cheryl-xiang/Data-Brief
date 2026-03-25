@@ -95,7 +95,7 @@ def _get_client():
 def get_insights(summary_text: str) -> str:
     client = _get_client()
     msg = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",
         max_tokens=300,
         system=INSIGHT_SYSTEM,
         messages=[{"role": "user", "content": summary_text}],
@@ -105,7 +105,7 @@ def get_insights(summary_text: str) -> str:
 def text_to_sql(question: str) -> dict:
     client = _get_client()
     msg = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",
         max_tokens=500,
         system=TEXT_TO_SQL_SYSTEM,
         messages=[{"role": "user", "content": question}],
