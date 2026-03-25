@@ -74,12 +74,20 @@ INSIGHT_SYSTEM = """You are a senior business analyst. Given a summary of key me
 an e-commerce dataset, write 3-4 sentences of sharp, actionable business insights. 
 Be specific about numbers. Use plain English. No bullet points."""
 
-# ── DB connection (cached) ────────────────────────────────────────────────────
-@st.cache_resource
+# ── Load CSVs into in-memory DuckDB ──────────────────────────────────────────
+@st.cache_resource(show_spinner=False)
 def get_connection():
-    if not os.path.exists(DB_PATH):
-        return None
-    return duckdb.connect(DB_PATH, read_only=True)
+    conn = duckdb.connect()  # in-memory
+    failed = []
+    for table_name, url in CSV_TABLES.items():
+        try:
+            df = pd.read_csv(url)
+            conn.register(table_name, df)
+        except Exception as e:
+            failed.append(f"{table_name}: {e}")
+    if failed:
+        st.warning("Some tables failed to load:\n" + "\n".join(failed))
+    return conn
 
 # ── Run SQL safely ────────────────────────────────────────────────────────────
 def run_query(sql: str) -> pd.DataFrame:
