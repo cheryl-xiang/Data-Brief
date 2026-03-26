@@ -9,7 +9,7 @@ import os
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Talk2Data · Olist BI",
+    page_title="Data Brief · Olist BI",
     page_icon="📊",
     layout="wide",
 )
@@ -304,8 +304,8 @@ def generate_example_questions(columns: tuple, filename: str) -> list:
     return json.loads(raw)
 
 # ── UI ────────────────────────────────────────────────────────────────────────
-st.title("📊 TalkToData")
-st.caption("AI-powered business intelligence for the Olist Brazilian E-Commerce dataset")
+st.title("📊 Data Brief")
+st.caption("AI-powered business intelligence for your datasets")
 
 conn = get_connection()
 if conn is None:
@@ -362,7 +362,7 @@ with st.sidebar:
 if st.session_state.get("uploaded_table_name"):
     st.caption(f"Querying: **{st.session_state['uploaded_filename']}**")
 else:
-    st.caption("AI-powered business intelligence · Olist Brazilian E-Commerce dataset")
+    st.caption("Querying:Olist Brazilian E-Commerce dataset")
  
 # Re-register uploaded table on every rerun (survives Streamlit reruns)
 if st.session_state.get("uploaded_df") is not None:
