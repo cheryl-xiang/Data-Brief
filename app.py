@@ -547,13 +547,34 @@ with tab1:
 # TAB 2 — Chat
 # ════════════════════════════════════════════════════════════════════════════
 with tab2:
-    header_col, clear_col = st.columns([6, 1])
+    header_col, dl_col, clear_col = st.columns([5, 1, 1])
     with header_col:
         st.subheader("💬 Ask the Data")
         if st.session_state.get("uploaded_filename"):
             st.caption(f"Querying **{st.session_state['uploaded_filename']}** · ask anything about your data")
         else:
             st.caption("Ask any business question in plain English. Examples:")
+    with dl_col:
+        # Build SQL file from history
+        sql_entries = [
+            msg for msg in st.session_state.get("chat_history", [])
+            if msg.get("role") == "assistant" and msg.get("sql")
+        ]
+        if sql_entries:
+            sql_export = "\n\n".join(
+                f"-- Q: {msg.get('question', '')}\n{msg['sql']}"
+                for msg in reversed(sql_entries)  # oldest first
+            )
+            st.download_button(
+                label="⬇️ SQL",
+                data=sql_export.encode("utf-8"),
+                file_name="queries.sql",
+                mime="text/plain",
+                use_container_width=True,
+                key="download_sql",
+            )
+        else:
+            st.button("⬇️ SQL", disabled=True, use_container_width=True, key="download_sql_disabled")
     with clear_col:
         st.write("")  # spacer to align button vertically
         if st.button("🗑️ Clear", use_container_width=True, key="clear_chat"):
