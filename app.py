@@ -556,6 +556,7 @@ with tab2:
             st.caption("Ask any business question in plain English. Examples:")
     with dl_col:
         # Build SQL file from history
+        st.markdown("<br>", unsafe_allow_html=True)
         sql_entries = [
             msg for msg in st.session_state.get("chat_history", [])
             if msg.get("role") == "assistant" and msg.get("sql")
