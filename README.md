@@ -27,7 +27,7 @@ Comes loaded with the [Olist Brazilian E-Commerce dataset](https://www.kaggle.co
  
 ## Demo
  
-> **Live demo:** *(add your Streamlit Cloud URL here after deploying)*
+> **Live demo:** https://data-brief.streamlit.app/
  
 Example questions you can ask:
 - *"Which 5 product categories have the highest average review score?"*
