@@ -377,7 +377,7 @@ with st.spinner("Loading dataset... (first load may take ~30 seconds)"):
 
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2 = st.tabs(["📈 Dashboard", "💬 Ask the Data"])
+tab1, tab2, tab3 = st.tabs(["📈 Dashboard", "💬 Ask the Data", "🗂️ View Data"])
 
 # ════════════════════════════════════════════════════════════════════════════
 # TAB 1 — Dashboard
@@ -648,3 +648,66 @@ with tab2:
                 st.dataframe(msg["df"], use_container_width=True)
             if "fig" in msg and msg["fig"] is not None:
                 st.plotly_chart(msg["fig"], use_container_width=True)
+
+# ════════════════════════════════════════════════════════════════════════════
+# TAB 3 — View Data
+# ════════════════════════════════════════════════════════════════════════════
+with tab3:
+    if st.session_state.get("uploaded_df") is not None:
+        df = st.session_state["uploaded_df"]
+        filename = st.session_state.get("uploaded_filename", "uploaded file")
+    else:
+        # Load the main Olist orders table as the default view
+        with st.spinner("Loading Olist orders..."):
+            df = run_query("SELECT * FROM orders LIMIT 5000")
+        filename = "olist_orders_dataset.csv"
+        st.caption("Showing the Olist orders table (first 5,000 rows). Upload your own CSV to explore different data.")
+ 
+    if df is not None:
+        st.subheader(f"📄 {filename}")
+        st.caption(f"{len(df):,} rows · {len(df.columns)} columns")
+
+        # ── Summary stats ─────────────────────────────────────────────
+        with st.expander("📊 Column Summary", expanded=True):
+            summary_rows = []
+            for col in df.columns:
+                dtype = str(df[col].dtype)
+                n_null = int(df[col].isnull().sum())
+                n_unique = int(df[col].nunique())
+                pct_null = f"{n_null / len(df) * 100:.1f}%" if len(df) > 0 else "0%"
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    summary_rows.append({
+                        "Column": col,
+                        "Type": dtype,
+                        "Unique": n_unique,
+                        "Nulls": f"{n_null} ({pct_null})",
+                        "Min": f"{df[col].min():,.2f}",
+                        "Max": f"{df[col].max():,.2f}",
+                        "Mean": f"{df[col].mean():,.2f}",
+                    })
+                else:
+                    sample_vals = ", ".join(str(v) for v in df[col].dropna().unique()[:3])
+                    summary_rows.append({
+                        "Column": col,
+                        "Type": dtype,
+                        "Unique": n_unique,
+                        "Nulls": f"{n_null} ({pct_null})",
+                        "Min": "—",
+                        "Max": "—",
+                        "Mean": f"e.g. {sample_vals}",
+                    })
+            st.dataframe(pd.DataFrame(summary_rows), use_container_width=True, hide_index=True)
+ 
+        st.divider()
+
+        # ── Raw data with search ──────────────────────────────────────
+        st.subheader("Raw Data")
+        search = st.text_input("🔍 Filter rows (searches all columns)", placeholder="Type to filter...")
+        if search:
+            mask = df.apply(lambda col: col.astype(str).str.contains(search, case=False, na=False)).any(axis=1)
+            filtered = df[mask]
+            st.caption(f"{len(filtered):,} rows match")
+        else:
+            filtered = df
+ 
+        st.dataframe(filtered, use_container_width=True, height=500)
