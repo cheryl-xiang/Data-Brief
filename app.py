@@ -283,6 +283,26 @@ Rules:
     raw = re.sub(r"```json|```", "", raw).strip()
     return json.loads(raw)
 
+# ── Auto-generated example questions for uploaded CSVs ────────────────────────────────
+@st.cache_data(show_spinner=False)
+def generate_example_questions(columns: tuple, filename: str) -> list:
+    """Ask Claude to suggest 5 example questions for an uploaded CSV."""
+    client = _get_client()
+    col_list = ", ".join(columns)
+    msg = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=300,
+        messages=[{"role": "user", "content": (
+            f"A user uploaded a CSV called \"{filename}\" with these columns: {col_list}.\n\n"
+            "Suggest exactly 5 short, specific natural language questions they could ask about this data. "
+            "Each question should be answerable with a simple SQL query. "
+            "Return ONLY a JSON array of 5 strings, no markdown, no explanation."
+        )}],
+    )
+    raw = msg.content[0].text.strip()
+    raw = re.sub(r"```json|```", "", raw).strip()
+    return json.loads(raw)
+
 # ── UI ────────────────────────────────────────────────────────────────────────
 st.title("📊 TalkToData")
 st.caption("AI-powered business intelligence for the Olist Brazilian E-Commerce dataset")
@@ -540,13 +560,22 @@ with tab2:
             st.session_state.chat_history = []
             st.rerun()
  
-    examples = [
-        "Which 5 product categories have the highest average review score?",
-        "Show monthly revenue for 2018",
-        "Which states have the most customers?",
-        "What is the most common payment type?",
-        "Show the top 10 sellers by total revenue",
-    ]
+    if st.session_state.get("uploaded_table_name"):
+        uploaded_cols = tuple(st.session_state.get("uploaded_columns", []))
+        uploaded_filename = st.session_state.get("uploaded_filename", "file")
+        try:
+            with st.spinner("Generating example questions..."):
+                examples = generate_example_questions(uploaded_cols, uploaded_filename)
+        except Exception:
+            examples = [f"How many rows are in the dataset?", "Show me the first 10 rows"]
+    else:
+        examples = [
+            "Which 5 product categories have the highest average review score?",
+            "Show monthly revenue for 2018",
+            "Which states have the most customers?",
+            "What is the most common payment type?",
+            "Show the top 10 sellers by total revenue",
+        ]
  
     cols = st.columns(len(examples))
     for i, ex in enumerate(examples):
