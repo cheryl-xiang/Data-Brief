@@ -390,7 +390,7 @@ with tab1:
  
         cache_key = f"dashboard_{filename}_{len(uploaded_df)}"
         if st.session_state.get("_dashboard_cache_key") != cache_key:
-            with st.spinner("Analysing your data and building dashboard..."):
+            with st.spinner("Analyzing your data and building dashboard..."):
                 try:
                     dashboard_spec = generate_uploaded_dashboard(uploaded_df, filename)
                     st.session_state["_dashboard_spec"] = dashboard_spec
