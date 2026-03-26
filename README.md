@@ -22,7 +22,7 @@ An AI-powered business intelligence dashboard that lets you explore the [Olist B
 
 ## 🖥️ Demo
 
-> **Live demo:** https://talk-to-data-gappv5jsmdhuejeirtr6n3y.streamlit.app/
+> **Live demo:** https://data-brief.streamlit.app/
 
 Example questions you can ask:
 - *"Which 5 product categories have the highest average review score?"*
