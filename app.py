@@ -124,13 +124,29 @@ def get_insights(summary_text: str) -> str:
     )
     return msg.content[0].text
 
-def _call_llm(messages: list) -> dict:
+def _call_llm(messages: list, schema_override: str = None) -> dict:
     """Call the LLM and parse the JSON response."""
     client = _get_client()
+    system = TEXT_TO_SQL_SYSTEM
+    if schema_override:
+        system = f"""You are a data analyst assistant. Given a natural language question,
+generate a single valid DuckDB SQL query to answer it.
+ 
+The user has uploaded a CSV file. It is available as a table called \"uploaded_table\" with these columns:
+{schema_override}
+ 
+Rules:
+- Return ONLY a JSON object with two keys: "sql" and "explanation"
+- "sql": the SQL query string  
+- "explanation": a one-sentence plain English description of what the query does
+- Limit results to 50 rows unless the user asks for more
+- ALWAYS cast timestamp/date columns explicitly: CAST(col AS TIMESTAMP)
+- Do not include markdown or code fences in your response
+"""
     msg = client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=500,
-        system=TEXT_TO_SQL_SYSTEM,
+        system=system,
         messages=messages,
     )
     raw = msg.content[0].text.strip()
@@ -140,7 +156,7 @@ def _call_llm(messages: list) -> dict:
 def text_to_sql(question: str) -> dict:
     """Generate SQL from a natural language question, with one auto-retry on error."""
     messages = [{"role": "user", "content": question}]
-    result = _call_llm(messages)
+    result = _call_llm(messages, schema_override=schema_override)
     sql = result.get("sql", "")
  
     # Try running the SQL — if it fails, send the error back to the LLM for a fix
@@ -236,6 +252,56 @@ if conn is None:
     3. Restart the app
     """)
     st.stop()
+
+# ── CSV Upload (sidebar) ──────────────────────────────────────────────────────
+with st.sidebar:
+    st.header("📂 Upload your own CSV")
+    st.caption("Upload a CSV to query it with natural language. This replaces the Olist dataset in the Ask the Data tab.")
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv", key="csv_upload")
+ 
+    if uploaded_file is not None:
+        try:
+            uploaded_df = pd.read_csv(uploaded_file)
+            # Register as a table in DuckDB
+            conn = get_connection()
+            conn.register("uploaded_table", uploaded_df)
+            st.session_state["uploaded_table_name"] = "uploaded_table"
+            st.session_state["uploaded_columns"] = list(uploaded_df.columns)
+            st.session_state["uploaded_filename"] = uploaded_file.name
+            st.session_state["chat_history"] = []  # clear chat on new upload
+            st.success(f"✅ Loaded **{uploaded_file.name}**")
+            st.caption(f"{len(uploaded_df):,} rows · {len(uploaded_df.columns)} columns")
+            with st.expander("Preview"):
+                st.dataframe(uploaded_df.head(5), use_container_width=True)
+        except Exception as e:
+            st.error(f"Failed to load file: {e}")
+ 
+    if st.session_state.get("uploaded_table_name"):
+        if st.button("🗑️ Remove uploaded file", use_container_width=True):
+            conn = get_connection()
+            try:
+                conn.execute("DROP VIEW IF EXISTS uploaded_table")
+            except:
+                pass
+            st.session_state.pop("uploaded_table_name", None)
+            st.session_state.pop("uploaded_columns", None)
+            st.session_state.pop("uploaded_filename", None)
+            st.session_state["chat_history"] = []
+            st.rerun()
+ 
+    st.divider()
+    st.caption("Using Olist dataset by default — 100K Brazilian e-commerce orders (2016–2018)")
+ 
+# ── Dynamic caption based on active dataset ───────────────────────────────────
+if st.session_state.get("uploaded_table_name"):
+    st.caption(f"Querying: **{st.session_state['uploaded_filename']}**")
+else:
+    st.caption("AI-powered business intelligence · Olist Brazilian E-Commerce dataset")
+ 
+# Trigger data load with a spinner
+with st.spinner("Loading dataset... (first load may take ~30 seconds)"):
+    get_connection()
+
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 tab1, tab2 = st.tabs(["📈 Dashboard", "💬 Ask the Data"])
@@ -372,7 +438,11 @@ with tab2:
     if question:
         with st.spinner("Thinking..."):
             try:
-                result = text_to_sql(question)
+                schema_override = None
+                if st.session_state.get("uploaded_table_name"):
+                    cols = st.session_state.get("uploaded_columns", [])
+                    schema_override = ", ".join(cols)
+                result = text_to_sql(question, schema_override=schema_override)
                 sql = result.get("sql", "")
                 explanation = result.get("explanation", "")
  
