@@ -153,7 +153,7 @@ Rules:
     raw = re.sub(r"```json|```", "", raw).strip()
     return json.loads(raw)
 
-def text_to_sql(question: str) -> dict:
+def text_to_sql(question: str, schema_override: str = None) -> dict:
     """Generate SQL from a natural language question, with one auto-retry on error."""
     messages = [{"role": "user", "content": question}]
     result = _call_llm(messages, schema_override=schema_override)
@@ -174,7 +174,7 @@ def text_to_sql(question: str) -> dict:
                 "Remember to CAST any timestamp/date columns explicitly, e.g. CAST(col AS TIMESTAMP)."
             )},
         ]
-        result = _call_llm(messages)
+        result = _call_llm(messages, schema_override=schema_override)
  
     return result
 
