@@ -13,19 +13,19 @@ Comes loaded with the [Olist Brazilian E-Commerce dataset](https://www.kaggle.co
  
 ---
  
-## ✨ Features
+## Features
  
-- **📈 Auto-generated Dashboard** — KPIs, revenue trends, top categories, order status, and review distributions. Dynamically rebuilds when you upload your own CSV
-- **🤖 AI Insights** — Claude automatically generates a plain-English business summary on load
-- **💬 Natural Language Chat** — ask any question in plain English, get back the SQL, a results table, and an auto-generated chart
-- **📂 CSV Upload** — upload any CSV to query it with natural language. Dashboard, example questions, and insights all adapt to your data
-- **🗂️ View Data** — explore raw data with column summaries, null counts, stats, a search filter, and CSV download
-- **⬇️ Export SQL** — download all generated queries from your session as a `.sql` file
-- **⚡ In-memory queries** — powered by DuckDB, no local database file required
+- **Auto-generated Dashboard** — KPIs, revenue trends, top categories, order status, and review distributions. Dynamically rebuilds when you upload your own CSV
+- **AI Insights** — Claude automatically generates a plain-English business summary on load
+- **Natural Language Chat** — ask any question in plain English, get back the SQL, a results table, and an auto-generated chart
+- **CSV Upload** — upload any CSV to query it with natural language. Dashboard, example questions, and insights all adapt to your data
+- **View Data** — explore raw data with column summaries, null counts, stats, a search filter, and CSV download
+- **Export SQL** — download all generated queries from your session as a `.sql` file
+- **In-memory queries** — powered by DuckDB, no local database file required
  
 ---
  
-## 🖥️ Demo
+## Demo
  
 > **Live demo:** *(add your Streamlit Cloud URL here after deploying)*
  
@@ -38,7 +38,7 @@ Example questions you can ask:
  
 ---
  
-## 🛠️ Tech Stack
+## Tech Stack
  
 | Layer | Tool |
 |---|---|
@@ -50,7 +50,7 @@ Example questions you can ask:
  
 ---
  
-## 🚀 Getting Started
+## Getting Started
  
 ### 1. Clone the repo
 ```bash
@@ -86,7 +86,7 @@ streamlit run app.py
  
 ---
  
-## ☁️ Deploy to Streamlit Cloud
+## Deploy to Streamlit Cloud
  
 1. Push this repo to GitHub
 2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
@@ -113,7 +113,7 @@ data-brief/
  
 ---
  
-## 📊 Default Dataset
+## Default Dataset
  
 Data Brief ships with the [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), containing ~100,000 orders from 2016–2018 across multiple Brazilian marketplaces. The app loads 8 CSV tables at startup:
  
@@ -130,6 +130,6 @@ The dataset is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/lice
  
 ---
  
-## 📄 License
+## License
  
 MIT
